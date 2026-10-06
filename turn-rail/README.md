@@ -8,7 +8,8 @@ A Claude Code Mod that renders a quiet turn lifecycle rail.
 │ Claude response...
 │
 ● turn.complete  9/29 Tue │ 11:29 │ 2m 18s
-                                      7m ago
+
+                                  7m ago
 ```
 
 ## Behavior
@@ -16,7 +17,9 @@ A Claude Code Mod that renders a quiet turn lifecycle rail.
 - `turn.start`: logs the start time in JST.
 - Assistant messages: get a dim vertical rail through `ui.render`.
 - `turn.complete`: logs completion date, weekday, time, and engine-provided `durationMs`.
-- The latest completed turn gets a live relative age (`just now`, `7m ago`, `3h ago`, ...), rendered in the native `AbovePrompt` band and refreshed every 30 seconds.
+- The latest completed turn gets a live relative age (`just now`, `7m ago`, `3h ago`, ...).
+- Relative age is rendered through `SessionMode`, which the current public render contract exposes on both terminal and desktop.
+- The age redraws every 30 seconds but only changes when its displayed unit changes.
 - Starting a new turn removes the previous live age.
 - Subagent completions are ignored in the primary rail.
 - Aborted turns are labeled `turn.aborted`.
@@ -49,6 +52,13 @@ claude --plugin-dir turn-rail
 claude plugin test turn-rail
 ```
 
-## Notes
+## Render-site choice
 
-Claude Code's public render contract currently gives `AssistantMessage` on every surface, while `TurnDuration` is terminal-only. The live relative age therefore uses `AbovePrompt` instead of depending on a terminal-only footer render site.
+The current public Claude Code render contract says:
+
+- `AssistantMessage`: every surface
+- `SessionMode`: terminal + desktop
+- `AbovePrompt`: terminal only
+- `TurnDuration`: terminal only
+
+That is why the persistent live age uses `SessionMode` rather than `AbovePrompt` or `TurnDuration`. The complete timestamp itself stays in the transcript as a native dim system-log row.
