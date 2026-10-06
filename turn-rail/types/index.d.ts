@@ -3,6 +3,6 @@ export type AgeLabel = string
 
 declare module 'claude-code' {
   interface PluginState {
-    'turn-rail': { completedAt: number | null; age: AgeLabel | null }
+    turn: { completedAt: number | null; age: AgeLabel | null }
   }
 }

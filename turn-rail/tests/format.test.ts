@@ -31,8 +31,8 @@ describe('format', () => {
     expect(formatRelativeAge(7 * 86_400_000)).toBeUndefined()
   })
 
-  test('separates rail elements with spaces, not bars or Markdown', () => {
-    expect(formatRailLine(['turn.complete', '9/29 Tue', '11:29', '2m 18s']))
-      .toBe('● turn.complete  9/29 Tue  11:29  2m 18s')
+  test('brackets the event and separates elements with spaces, no Markdown', () => {
+    expect(formatRailLine(['complete', '9/29 Tue', '11:29', '2m 18s']))
+      .toBe('[complete]  9/29 Tue  11:29  2m 18s')
   })
 })
