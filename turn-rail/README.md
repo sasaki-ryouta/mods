@@ -19,7 +19,8 @@ A Claude Code Mod that renders a quiet turn lifecycle rail.
 - `turn.complete`: logs completion date, weekday, time, and engine-provided `durationMs`.
 - The latest completed turn gets a live relative age (`just now`, `7m ago`, `3h ago`, ...).
 - Relative age is rendered through `SessionMode`, which the current public render contract exposes on both terminal and desktop.
-- The age redraws every 30 seconds but only changes when its displayed unit changes.
+- The age is checked every 30 seconds and kept in `$.state`; only a changed label redraws, and only the `SessionMode` footer.
+- `/clear` (`session.end`) drops the age with the conversation.
 - Starting a new turn removes the previous live age.
 - Subagent completions are ignored in the primary rail.
 - Aborted turns are labeled `turn.aborted`.
@@ -42,14 +43,16 @@ Relative age is hidden after 7 days.
 
 From the repository root:
 
+Hooks modules are early access; on a build where they are not on yet, enable them:
+
 ```sh
-claude --plugin-dir turn-rail
+CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude --plugin-dir turn-rail
 ```
 
 ## Tests
 
 ```sh
-claude plugin test turn-rail
+CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude plugin test turn-rail
 ```
 
 ## Render-site choice
