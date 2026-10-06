@@ -2,8 +2,9 @@ import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
 
 import {
-  formatCompleteTime,
+  formatCompleteDate,
   formatElapsed,
+  formatRailLine,
   formatRelativeAge,
   formatStartTime,
 } from './format'
@@ -41,7 +42,7 @@ export const register: Register = on => {
   on('turn.start', async ($, e, next) => {
     await update($, completedAt, () => null)
     await update($, age, () => null)
-    $.ui.log(`● turn.start  ${formatStartTime(await $.clock.now())}`)
+    $.ui.log(formatRailLine(['turn.start', formatStartTime(await $.clock.now())]))
 
     return next(e)
   })
@@ -56,7 +57,12 @@ export const register: Register = on => {
     const now = await $.clock.now()
     const state = e.isAborted ? 'turn.aborted' : 'turn.complete'
     $.ui.log(
-      `● ${state}  ${formatCompleteTime(now)} │ ${formatElapsed(e.durationMs)}`,
+      formatRailLine([
+        state,
+        formatCompleteDate(now),
+        formatStartTime(now),
+        formatElapsed(e.durationMs),
+      ]),
     )
     await update($, completedAt, () => now)
     await update($, age, () => formatRelativeAge(0) ?? null)
@@ -65,12 +71,8 @@ export const register: Register = on => {
   })
 
   on('ui.render', { component: 'AssistantMessage' }, async ($, e, next) => {
-    // Off the terminal, the surface's own blockquote draws the rail: a rewrite
-    // of the props changes the drawing only, never the stored message.
-    if (e.surface !== 'terminal') {
-      const text = e.props.text.replace(/^/gm, '> ')
-      return next({ ...e, props: { ...e.props, text } })
-    }
+    // Off the terminal the reply is drawn as the engine draws it.
+    if (e.surface !== 'terminal') return next(e)
 
     const original = await next(e)
     const { Box, Text } = $.ui.resolve(e)

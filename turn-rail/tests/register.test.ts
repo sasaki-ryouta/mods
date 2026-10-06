@@ -70,7 +70,7 @@ describe('turn rail', () => {
     // A NaN clock read would print "Invalid Date"; the times must be JST.
     expect(lines).toEqual([
       '● turn.start  11:27',
-      '● turn.complete  9/29 Tue │ 11:29 │ 2m 18s',
+      '● turn.complete  9/29 Tue  11:29  2m 18s',
     ])
   })
 
@@ -79,7 +79,7 @@ describe('turn rail', () => {
     await $.turn.start({ text: 'hi', turnId: 't1' })
     await $.turn.complete(complete('t1', 42_000, { isAborted: true, reason: 'aborted' }))
 
-    expect(lines.at(-1)).toBe('● turn.aborted  9/29 Tue │ 11:27 │ 42s')
+    expect(lines.at(-1)).toBe('● turn.aborted  9/29 Tue  11:27  42s')
   })
 
   test('keeps subagent turns off the primary rail and the age', async ($, on) => {
@@ -119,7 +119,7 @@ describe('turn rail', () => {
     expect(await ageOn($, 'desktop')).toBeUndefined()
   })
 
-  test('rails the reply without changing the stored text', async ($, on) => {
+  test('rails the reply on the terminal only, never changing its text', async ($, on) => {
     setup($, on)
     const props = { text: 'Claude response...\nsecond line', isFirstOfReply: true }
 
@@ -129,10 +129,10 @@ describe('turn rail', () => {
     expect(await term.find({ type: 'Text', text: /^│\n│/ })).toBeDefined()
     await term.unmount()
 
-    // Elsewhere: the surface's own blockquote, every line quoted, drawing only.
+    // Elsewhere: the reply is drawn as the engine draws it, nothing added.
     for (const surface of ['desktop', 'vscode', 'mobile'] as const) {
       const ui = await $.ui.mount({ plugin: 'turn-rail', surface, component: 'AssistantMessage', props })
-      expect((await ui.find({ type: 'Text' }))?.text).toBe('> Claude response...\n> second line')
+      expect((await ui.findAll({ type: 'Text' })).map(t => t.text)).toEqual([props.text])
       await ui.unmount()
     }
     expect(props.text).toBe('Claude response...\nsecond line')

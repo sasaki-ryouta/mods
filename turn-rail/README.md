@@ -7,7 +7,7 @@ A Claude Code Mod that renders a quiet turn lifecycle rail.
 │
 │ Claude response...
 │
-● turn.complete  9/29 Tue │ 11:29 │ 2m 18s
+● turn.complete  9/29 Tue  11:29  2m 18s
 
                                   7m ago
 ```
@@ -15,8 +15,8 @@ A Claude Code Mod that renders a quiet turn lifecycle rail.
 ## Behavior
 
 - `turn.start`: logs the start time in JST.
-- Assistant messages: get a rail through `ui.render`, drawing only (the stored message is untouched): a dim `│` column on the terminal; elsewhere each line is drawn as a Markdown blockquote, whose left rule is the surface's own (stacked `│` breaks between lines there, and a Box cannot be thinner than one cell).
-- `turn.complete`: logs completion date, weekday, time, and engine-provided `durationMs`.
+- Assistant messages: on the terminal, a dim `│` rail drawn beside them through `ui.render` (drawing only; the stored message is untouched). Other surfaces draw replies unchanged.
+- `turn.complete`: logs completion date, weekday, time, and engine-provided `durationMs`, two spaces apart. Log rows are plain text on every surface (the desktop shows backticks literally), so the elements carry no Markdown.
 - The latest completed turn gets a live relative age (`just now`, `7m ago`, `3h ago`, ...).
 - Relative age is rendered in the terminal's footer modes (`SessionMode`) and, on the desktop, as a dim line in the band above the prompt (`AbovePrompt`), hidden while a turn runs. The desktop raises `SessionMode` but draws no footer for it (seen on 2.1.288).
 - The age is checked every 30 seconds and kept in `$.state`; only a changed label redraws, and only the age's own site.
