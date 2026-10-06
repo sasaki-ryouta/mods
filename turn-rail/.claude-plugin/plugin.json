@@ -1,0 +1,8 @@
+{
+  "name": "turn-rail",
+  "version": "0.1.0",
+  "description": "Adds a native turn event rail with JST timestamps, turn duration, and a live relative age for the latest completed turn.",
+  "author": {
+    "name": "sasaki-ryouta"
+  }
+}
