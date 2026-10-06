@@ -1,4 +1,4 @@
-import type { On } from 'claude-code'
+import type { EngineInterface, On } from 'claude-code'
 
 import {
   formatCompleteTime,
@@ -13,7 +13,7 @@ export function register(on: On) {
   let latestCompletedAt: number | undefined
   let tickerStarted = false
 
-  const redrawAge = ($: Parameters<Parameters<On>[1]>[0]) => {
+  const redrawAge = ($: EngineInterface) => {
     if (latestCompletedAt === undefined) return
     $.ui.invalidate('ui.render')
   }
@@ -23,20 +23,25 @@ export function register(on: On) {
       tickerStarted = true
       $.clock.every(AGE_REFRESH_MS, () => redrawAge($))
     }
+
     return next(e)
   })
 
   on('turn.start', ($, e, next) => {
     latestCompletedAt = undefined
+
     const now = Number($.clock.now())
     $.ui.log(`● turn.start  ${formatStartTime(now)}`)
     $.ui.invalidate('ui.render')
+
     return next(e)
   })
 
   on('turn.complete', async ($, e, next) => {
     const result = await next(e)
 
+    // Subagent turns also complete through this event. Keep the primary
+    // transcript rail scoped to the main loop.
     if (e.agentId !== undefined) return result
 
     const completedAt = Number($.clock.now())
@@ -64,23 +69,18 @@ export function register(on: On) {
     })
   })
 
-  on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
-    const original = await next(e)
-    if (latestCompletedAt === undefined) return original
+  on('ui.render', { component: 'SessionMode' }, ($, e, next) => {
+    if (latestCompletedAt === undefined) return next(e)
 
     const relative = formatRelativeAge(Number($.clock.now()) - latestCompletedAt)
-    if (relative === undefined) return original
+    if (relative === undefined) return next(e)
 
-    const { Box, Text } = $.ui.resolve(e)
-    return Box({
-      flexDirection: 'column',
-      children: [
-        original,
-        Box({
-          justifyContent: 'flex-end',
-          children: Text({ dimColor: true, italic: true, children: relative }),
-        }),
-      ],
+    return next({
+      ...e,
+      props: {
+        ...e.props,
+        modes: [...e.props.modes, relative],
+      },
     })
   })
 }
