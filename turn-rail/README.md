@@ -1,13 +1,15 @@
 # turn-rail
 
+Plugin name: `turn`. The engine prefixes each log row with it, so the rows read `turn [start]`, `turn [complete]`, `turn [aborted]`.
+
 A Claude Code Mod that renders a quiet turn lifecycle rail.
 
 ```text
-● turn.start  11:27
+turn [start]  11:27
 │
 │ Claude response...
 │
-● turn.complete  9/29 Tue  11:29  2m 18s
+turn [complete]  9/29 Tue  11:29  2m 18s
 
                                   7m ago
 ```
@@ -23,7 +25,7 @@ A Claude Code Mod that renders a quiet turn lifecycle rail.
 - `/clear` (`session.end`) drops the age with the conversation.
 - Starting a new turn removes the previous live age.
 - Subagent completions are ignored in the primary rail.
-- Aborted turns are labeled `turn.aborted`.
+- Aborted turns are labeled `[aborted]`.
 
 ## Time format
 

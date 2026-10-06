@@ -15,8 +15,8 @@ const RAIL = Array(2000).fill('│').join('\n')
 
 // Held by the host so a hot reload keeps the latest turn. Writing `age` redraws
 // only the SessionMode readers, and only when the shown label changes.
-const completedAt = atom({ plugin: 'turn-rail', key: 'completedAt' } as const, null)
-const age = atom({ plugin: 'turn-rail', key: 'age' } as const, null)
+const completedAt = atom({ plugin: 'turn', key: 'completedAt' } as const, null)
+const age = atom({ plugin: 'turn', key: 'age' } as const, null)
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
@@ -42,7 +42,7 @@ export const register: Register = on => {
   on('turn.start', async ($, e, next) => {
     await update($, completedAt, () => null)
     await update($, age, () => null)
-    $.ui.log(formatRailLine(['turn.start', formatStartTime(await $.clock.now())]))
+    $.ui.log(formatRailLine(['start', formatStartTime(await $.clock.now())]))
 
     return next(e)
   })
@@ -55,7 +55,7 @@ export const register: Register = on => {
     if (e.agentId !== undefined) return result
 
     const now = await $.clock.now()
-    const state = e.isAborted ? 'turn.aborted' : 'turn.complete'
+    const state = e.isAborted ? 'aborted' : 'complete'
     $.ui.log(
       formatRailLine([
         state,

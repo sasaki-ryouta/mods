@@ -29,11 +29,11 @@ export function formatCompleteDate(epochMs: number): string {
 }
 
 /**
- * A rail line: the marker, then the elements two spaces apart. The line is a
- * plain-text log row on every surface, so no Markdown (inline code) renders.
+ * A rail line: the event in brackets, then the elements two spaces apart. The
+ * line is a plain-text log row on every surface, so no Markdown renders.
  */
-export function formatRailLine(elements: readonly string[]): string {
-  return `● ${elements.join('  ')}`
+export function formatRailLine([event, ...elements]: readonly string[]): string {
+  return [`[${event}]`, ...elements].join('  ')
 }
 
 export function formatElapsed(durationMs: number): string {
