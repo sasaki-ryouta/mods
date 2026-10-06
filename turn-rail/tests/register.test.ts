@@ -21,6 +21,10 @@ function setup($: Engine, on: On) {
     const { Text } = $.ui.resolve(e)
     return Text({ children: e.props.text })
   })
+  on('ui.render', { component: 'AbovePrompt' }, ($, e) => {
+    const { Box } = $.ui.resolve(e)
+    return Box({})
+  })
   on('ui.render', { component: 'SessionMode' }, ($, e) => {
     const { Text } = $.ui.resolve(e)
     return Text({ dimColor: true, children: e.props.modes.join(' & ') })
@@ -37,13 +41,18 @@ const complete = (turnId: string, durationMs: number, extra = {}) => ({
   ...extra,
 })
 
-async function ageOn($: Engine, surface: 'terminal' | 'desktop') {
-  const ui = await $.ui.mount({
-    plugin: 'turn-rail',
-    surface,
-    component: 'SessionMode',
-    props: { modes: [] },
-  })
+// The age sits in the footer modes on the terminal and in the band above the
+// prompt on the desktop, which draws no SessionMode footer.
+async function ageOn($: Engine, surface: 'terminal' | 'desktop', isWorking = false) {
+  const ui =
+    surface === 'terminal'
+      ? await $.ui.mount({ plugin: 'turn-rail', surface, component: 'SessionMode', props: { modes: [] } })
+      : await $.ui.mount({
+          plugin: 'turn-rail',
+          surface,
+          component: 'AbovePrompt',
+          props: { hasSurvey: false, isWorking, maxRows: 10, bodyColumns: 80, scroll: { offset: 0, bodyRows: 10 }, view: {} },
+        })
   const found = await ui.find({ text: /ago|just now/ })
   await ui.unmount()
   return found?.text
@@ -93,6 +102,9 @@ describe('turn rail', () => {
 
     await clock.advance(7 * MIN)
     expect(await ageOn($, 'desktop')).toBe('7m ago')
+    expect(await ageOn($, 'terminal')).toBe('7m ago')
+    // The band stays out of the way while a turn runs.
+    expect(await ageOn($, 'desktop', true)).toBeUndefined()
 
     // The next turn takes the previous one's age off the footer.
     await $.turn.start({ text: 'b', turnId: 't2' })

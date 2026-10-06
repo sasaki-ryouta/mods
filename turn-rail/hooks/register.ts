@@ -104,4 +104,18 @@ export const register: Register = on => {
       props: { ...e.props, modes: [...e.props.modes, label] },
     })
   })
+
+  // The desktop raises SessionMode but draws no footer for it (seen on
+  // 2.1.288), so off the terminal the age takes the band above the prompt.
+  on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
+    if (e.surface === 'terminal' || e.props.hasSurvey || e.props.isWorking) {
+      return next(e)
+    }
+
+    const label = await read($, age)
+    if (label === null) return next(e)
+
+    const { Text } = $.ui.resolve(e)
+    return Text({ dimColor: true, children: label })
+  })
 }
