@@ -1,0 +1,6 @@
+{
+  "description": "Turn lifecycle rail: logs turn.start/turn.complete, decorates assistant messages with a dim rail, and shows live age for the latest completed turn.",
+  "modules": [
+    "./register.ts"
+  ]
+}
