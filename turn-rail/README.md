@@ -15,7 +15,7 @@ A Claude Code Mod that renders a quiet turn lifecycle rail.
 ## Behavior
 
 - `turn.start`: logs the start time in JST.
-- Assistant messages: get a dim vertical rail through `ui.render`.
+- Assistant messages: get a rail through `ui.render`, drawing only (the stored message is untouched): a dim `│` column on the terminal; elsewhere each line is drawn as a Markdown blockquote, whose left rule is the surface's own (stacked `│` breaks between lines there, and a Box cannot be thinner than one cell).
 - `turn.complete`: logs completion date, weekday, time, and engine-provided `durationMs`.
 - The latest completed turn gets a live relative age (`just now`, `7m ago`, `3h ago`, ...).
 - Relative age is rendered through `SessionMode`, which the current public render contract exposes on both terminal and desktop.

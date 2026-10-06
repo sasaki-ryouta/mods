@@ -65,6 +65,13 @@ export const register: Register = on => {
   })
 
   on('ui.render', { component: 'AssistantMessage' }, async ($, e, next) => {
+    // Off the terminal, the surface's own blockquote draws the rail: a rewrite
+    // of the props changes the drawing only, never the stored message.
+    if (e.surface !== 'terminal') {
+      const text = e.props.text.replace(/^/gm, '> ')
+      return next({ ...e, props: { ...e.props, text } })
+    }
+
     const original = await next(e)
     const { Box, Text } = $.ui.resolve(e)
 

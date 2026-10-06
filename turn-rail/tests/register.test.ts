@@ -107,19 +107,22 @@ describe('turn rail', () => {
     expect(await ageOn($, 'desktop')).toBeUndefined()
   })
 
-  test('rails the reply on every surface without changing its text', async ($, on) => {
+  test('rails the reply without changing the stored text', async ($, on) => {
     setup($, on)
-    for (const surface of ['terminal', 'desktop', 'vscode', 'mobile'] as const) {
-      const ui = await $.ui.mount({
-        plugin: 'turn-rail',
-        surface,
-        component: 'AssistantMessage',
-        props: { text: 'Claude response...', isFirstOfReply: true },
-      })
-      expect((await ui.find({ type: 'Text', text: 'Claude response...' }))?.text)
-        .toBe('Claude response...')
-      expect(await ui.find({ type: 'Text', text: /^│\n│/ })).toBeDefined()
+    const props = { text: 'Claude response...\nsecond line', isFirstOfReply: true }
+
+    // Terminal: a dim column of bars beside the engine's own drawing.
+    const term = await $.ui.mount({ plugin: 'turn-rail', surface: 'terminal', component: 'AssistantMessage', props })
+    expect((await term.find({ type: 'Text', text: 'Claude response...' }))?.text).toBe(props.text)
+    expect(await term.find({ type: 'Text', text: /^│\n│/ })).toBeDefined()
+    await term.unmount()
+
+    // Elsewhere: the surface's own blockquote, every line quoted, drawing only.
+    for (const surface of ['desktop', 'vscode', 'mobile'] as const) {
+      const ui = await $.ui.mount({ plugin: 'turn-rail', surface, component: 'AssistantMessage', props })
+      expect((await ui.find({ type: 'Text' }))?.text).toBe('> Claude response...\n> second line')
       await ui.unmount()
     }
+    expect(props.text).toBe('Claude response...\nsecond line')
   })
 })
