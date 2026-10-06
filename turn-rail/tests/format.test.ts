@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'claude-code/testing'
 
 import {
-  formatCompleteTime,
+  formatCompleteDate,
   formatElapsed,
+  formatRailLine,
   formatRelativeAge,
   formatStartTime,
 } from '../hooks/format'
@@ -11,7 +12,7 @@ describe('format', () => {
   test('formats JST timestamps', () => {
     const at = Date.parse('2026-09-29T02:27:00.000Z')
     expect(formatStartTime(at)).toBe('11:27')
-    expect(formatCompleteTime(at)).toBe('9/29 Tue │ 11:27')
+    expect(formatCompleteDate(at)).toBe('9/29 Tue')
   })
 
   test('formats elapsed duration without zero padding', () => {
@@ -28,5 +29,10 @@ describe('format', () => {
     expect(formatRelativeAge(3 * 3_600_000)).toBe('3h ago')
     expect(formatRelativeAge(2 * 86_400_000)).toBe('2d ago')
     expect(formatRelativeAge(7 * 86_400_000)).toBeUndefined()
+  })
+
+  test('separates rail elements with spaces, not bars or Markdown', () => {
+    expect(formatRailLine(['turn.complete', '9/29 Tue', '11:29', '2m 18s']))
+      .toBe('● turn.complete  9/29 Tue  11:29  2m 18s')
   })
 })

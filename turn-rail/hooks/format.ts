@@ -22,9 +22,18 @@ export function formatStartTime(epochMs: number): string {
   return time.format(new Date(epochMs))
 }
 
-export function formatCompleteTime(epochMs: number): string {
+/** `9/29 Tue`: the completion's date and weekday, one element of the line. */
+export function formatCompleteDate(epochMs: number): string {
   const at = new Date(epochMs)
-  return `${date.format(at)} ${weekday.format(at)} │ ${time.format(at)}`
+  return `${date.format(at)} ${weekday.format(at)}`
+}
+
+/**
+ * A rail line: the marker, then the elements two spaces apart. The line is a
+ * plain-text log row on every surface, so no Markdown (inline code) renders.
+ */
+export function formatRailLine(elements: readonly string[]): string {
+  return `● ${elements.join('  ')}`
 }
 
 export function formatElapsed(durationMs: number): string {
